@@ -42,22 +42,27 @@ public class PayCalculator {
 		// Make REST API request
 		// Get the result
 		// Process the result
-		String[] params = { "canceled=true", "minDate=" + start_date, "maxDate=" + end_date };
+		String[] params = { "canceled=false", "max=1000", "minDate=" + start_date, "maxDate=" + end_date };
 		String resp = Rest.Get(uid + ":" + password,
 				"https://acuityscheduling.com/api/v1/appointments", params);
 		//System.out.println(resp);
 		Gson gson = new Gson();
 		calendarEntries = gson.fromJson(resp, CalendarEntry[].class);
-		/*for (CalendarEntry c : calendarEntries) {
+		/* for (CalendarEntry c : calendarEntries) {
 			System.out.println(c);
 		}*/
 		
-		for(CalendarEntry c : calendarEntries) {
+		System.out.println("Found " + calendarEntries.length + " calendar entries.");
+		for (CalendarEntry c : calendarEntries) {
 			String tutorName = tutor_map.get(c.type);
-			if(tutor_final_rate.containsKey(tutorName)){
-				tutor_final_rate.put(tutorName, tutor_final_rate.get(tutorName) + pay_rate_map.get(c.type));
+			if (tutorName == null) {
+				System.err.println("\"" + c.type + "\" not found (" + c.toString() + ")");
 			} else {
-				tutor_final_rate.put(tutorName, pay_rate_map.get(c.type));
+				if (tutor_final_rate.containsKey(tutorName)) {
+					tutor_final_rate.put(tutorName, tutor_final_rate.get(tutorName) + pay_rate_map.get(c.type));
+				} else {
+					tutor_final_rate.put(tutorName, pay_rate_map.get(c.type));
+				}
 			}
 		}
 		
